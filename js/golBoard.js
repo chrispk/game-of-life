@@ -19,18 +19,22 @@ function GolBoard(w, h) {
 	this.virtualBoard = this.board;
 
 	this.updateBoard = function() {
-		this.updateVirtualBoard();
 		this.board = this.virtualBoard;
-		// update visual board -------------------- START HERE
 		for (var i = 0; i < this.width; i++) {
 			for (var j = 0; j < this.height; j++) {
+				var cell = domBoard.childNodes[i].childNodes[j];
 				if(this.board[i][j]) {
-					var cell = domBoard.childNodes[i].childNodes[j];
-					cell.classList.remove('inactive');
-					cell.classList.add('active');
+					if( ! cell.classList.contains('active') ) {
+						cell.classList.add('active');
+					}
+				} else {
+					if( cell.classList.contains('active') ) {
+						cell.classList.remove('active');
+					}
 				}
 			}
 		}
+		this.updateVirtualBoard();
 	}
 
 	this.makeBoard = function() {
@@ -43,17 +47,20 @@ function GolBoard(w, h) {
 			column.setAttribute('class', 'golboard-column');
 			for (var j = 0; j < this.height; j++) {
 				var cell = document.createElement('div');
-				cell.setAttribute('class', 'golboard-cell inactive');
+				cell.setAttribute('class', 'golboard-cell');
+				cell.addEventListener('click', function(e) {
+					e.target.classList.toggle('active');
+				});
 				column.appendChild(cell);
 			}
 			domBoard.appendChild(column);
 		}
-		document.getElementsByTagName("BODY")[0].appendChild(domBoard);
+		document.getElementById('body').appendChild(domBoard);
 	}
 
 	this.updateVirtualBoard = function() {
-		for (i = 0;i < w; i++) {
-			for (j = 0;j < y; j++) {
+		for (var i = 0;i < this.width; i++) {
+			for (var j = 0;j < this.height; j++) {
 				var population = this.countPopulatedCells(i, j);
 						
 				if (population < 2) {
@@ -63,7 +70,7 @@ function GolBoard(w, h) {
 					// cell lives
 					this.virtualBoard[i][j] = true;
 				} else if (population > 3) {
-					// cell lives
+					// cell dies
 					this.virtualBoard[i][j] = false;
 				}
 			}
@@ -72,24 +79,26 @@ function GolBoard(w, h) {
 	this.countPopulatedCells = function(x, y) {
 		var count = 0;
 
-		for (i = x - 1;i < i + 2; i++) {
-			for (j = y - 1;j < y + 2; j++) {
+		for (var i = x - 1;i < x + 1; i++) {
+			for (var j = y - 1;j < y + 1; j++) {
 				if (i != x && j != y) {
+					var xPosition = i;
+					var yPosition = j;
 					if(this.boardWrap) {
-						if (x < 0) {
-							x = this.width - 1;
+						if (xPosition < 0) {
+							xPosition = this.width - 1;
 						}
-						if (x == width) {
-							x = 0;
+						if (xPosition == this.width) {
+							xPosition = 0;
 						}
-						if (y < 0) {
-							y = this.height - 1;
+						if (yPosition < 0) {
+							yPosition = this.height - 1;
 						}
-						if (y == height) {
-							y = 0;
+						if (yPosition == this.height) {
+							yPosition = 0;
 						}
 					}
-					if (this.board[i][j] == true) {
+					if (this.board[xPosition][yPosition] ) {
 						count++;
 					}
 				}
@@ -110,3 +119,4 @@ golBoard.virtualBoard[4][5] = true;
 golBoard.virtualBoard[5][4] = true;
 golBoard.virtualBoard[5][5] = true;
 
+golBoard.updateBoard();
