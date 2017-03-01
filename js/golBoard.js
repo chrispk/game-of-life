@@ -1,46 +1,25 @@
-function GolBoard(w, h) {
+function GolBoard(w, h, wrap) {
 	this.width = w;
 	this.height = h;
+	this.boardWrap = wrap;
 
-	this.boardWrap = true;
-	this.domBoard;
-
-	this.board = [];
+	// sets up board, a 2d array of boolean values with the size set when executing the constructor
+	// sets up a virtualBoard which initialises as a copy of board
+	// calls this.makeBoard to construct DOMBoard 
 	this.init = function() {
+		this.board = [];
 		for (i = 0;i < this.width; i++) {
 			this.board[i] = [];
 			for (j = 0;j < this.height; j++) {
 				this.board[i][j] = false;
 			}
 		}
-		this.makeBoard();
-	}
+		
+		this.virtualBoard = this.board;
 
-	this.virtualBoard = this.board;
-
-	this.updateBoard = function() {
-		this.board = this.virtualBoard;
-		for (var i = 0; i < this.width; i++) {
-			for (var j = 0; j < this.height; j++) {
-				var cell = domBoard.childNodes[i].childNodes[j];
-				if(this.board[i][j]) {
-					if( ! cell.classList.contains('active') ) {
-						cell.classList.add('active');
-					}
-				} else {
-					if( cell.classList.contains('active') ) {
-						cell.classList.remove('active');
-					}
-				}
-			}
-		}
-		this.updateVirtualBoard();
-	}
-
-	this.makeBoard = function() {
-		domBoard = document.createElement('div');
-		domBoard.setAttribute('id', 'golBoard');
-		domBoard.setAttribute('class', 'golboard');
+		this.DOMBoard = document.createElement('div');
+		this.DOMBoard.setAttribute('id', 'golBoard');
+		this.DOMBoard.setAttribute('class', 'golboard');
 
 		for (var i = 0; i < this.width; i++) {
 			var column = document.createElement('div');
@@ -53,70 +32,126 @@ function GolBoard(w, h) {
 				});
 				column.appendChild(cell);
 			}
-			domBoard.appendChild(column);
+			this.DOMBoard.appendChild(column);
 		}
-		document.getElementById('body').appendChild(domBoard);
+		document.getElementById('body').appendChild(this.DOMBoard);
 	}
 
-	this.updateVirtualBoard = function() {
+	// updates DOMBoard, DOM representation of board, from board
+	this.updateDOMBoard = function() {
+		for (var i = 0; i < this.width; i++) {
+			for (var j = 0; j < this.height; j++) {
+				var cell = this.DOMBoard.childNodes[i].childNodes[j];
+				if(this.board[i][j]) {
+					if( ! cell.classList.contains('active') ) {
+						cell.classList.add('active');
+					}
+				} else {
+					if( cell.classList.contains('active') ) {
+						cell.classList.remove('active');
+					}
+				}
+			}
+		}
+	}
+
+	// updates board (primary board object) from DOMBoard
+	this.updateBoard = function() {
+		for (var i = 0; i < this.width; i++) {
+			for (var j = 0; j < this.height; j++) {
+				var cell = this.DOMBoard.childNodes[i].childNodes[j];
+				if( cell.classList.contains('active') ) {
+					this.board[i][j] = true;
+				} else {
+					this.board[i][j] = false;
+				}
+			}
+		}
+	}
+
+	// updates board from DOMBoard
+	// updates virtualBoard to match board
+	// calculates which cells live and which cells die
+	// updates board from virtualBoard which holds next generation settings
+	this.calculateNextGeneration = function() {
+		this.updateBoard();
+		this.virtualBoard = this.board;
 		for (var i = 0;i < this.width; i++) {
 			for (var j = 0;j < this.height; j++) {
 				var population = this.countPopulatedCells(i, j);
-						
+
 				if (population < 2) {
+					// console.log("cell " + i + " " + j + " dies");
 					// cell dies
 					this.virtualBoard[i][j] = false;
 				} else if (population == 3) {
+					// console.log("cell " + i + " " + j + " becomes alive(r)");
 					// cell lives
 					this.virtualBoard[i][j] = true;
 				} else if (population > 3) {
+					// console.log("cell " + i + " " + j + " dies");
 					// cell dies
 					this.virtualBoard[i][j] = false;
 				}
 			}
 		}
+		this.board = this.virtualBoard;
 	}
+	// count the surrounding active cells of a specified cell with optional wrapping enabled
+	// return number of cells
 	this.countPopulatedCells = function(x, y) {
+		//console.log(x);
+		//console.log(y);
 		var count = 0;
-
-		for (var i = x - 1;i < x + 1; i++) {
-			for (var j = y - 1;j < y + 1; j++) {
-				if (i != x && j != y) {
+		var debug = "primary cell: " + x + " " + y + " - surrounding cells: ";
+		for (var i = x - 1;i < x + 2; i++) {
+			for (var j = y - 1;j < y + 2; j++) {
+				if (i == x && j == y ) {
+					console.log("skipped");
+				} else {
 					var xPosition = i;
 					var yPosition = j;
 					if(this.boardWrap) {
 						if (xPosition < 0) {
+							// console.log("1");
 							xPosition = this.width - 1;
 						}
 						if (xPosition == this.width) {
+							// console.log("2");
 							xPosition = 0;
 						}
 						if (yPosition < 0) {
+							// console.log("3");
 							yPosition = this.height - 1;
 						}
 						if (yPosition == this.height) {
+							// console.log("4");
 							yPosition = 0;
 						}
 					}
+					debug += xPosition + " " + yPosition + " | "
+					console.log
 					if (this.board[xPosition][yPosition] ) {
 						count++;
 					}
 				}
 			}
 		}
-
+		console.log(debug);
+		console.log(count);
 		return count;
 	}
-
+	this.test = function() {
+		golBoard.calculateNextGeneration();
+		golBoard.updateDOMBoard();
+	}
 
 }
 
-var golBoard = new GolBoard(10, 10);
+// calculate next generation
+// update DOMBoard
+// wait 100ms
+// restart
+
+var golBoard = new GolBoard(10, 10, true);
 golBoard.init();
-
-golBoard.virtualBoard[4][4] = true;
-golBoard.virtualBoard[4][5] = true;
-golBoard.virtualBoard[5][4] = true;
-golBoard.virtualBoard[5][5] = true;
-
-golBoard.updateBoard();
