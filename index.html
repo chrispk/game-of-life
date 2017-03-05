@@ -29,14 +29,17 @@
                 display:block;
                 overflow:auto;
                 border: 1px #555 solid;
+                box-sizing: border-box;
             }
             .golboard-column {
-                width:10%;
+                width:2%;
                 float:left;
+                box-sizing: border-box;
             }
             .golboard-cell {
                 padding-bottom: 100%;
                 border: 1px #555 solid;
+                box-sizing: border-box;
             }
             .golboard-cell.active {
                 background: #555;
@@ -49,9 +52,41 @@
         <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+        <div id="nav" class="container">
+            <p style="text-align:center"><a href="#" id="random-seed">Random Seed</a> | <a href="#" id="start">Start</a> | <a href="#" id="stop">Stop</a> | <a id="next-iteration" href="#">Next Iteration</a> | <a href="#" id="clear">Clear</a></p>
+        </div>
         <div class="container" id="body"></div>
-        
-
         <script src="js/golBoard.js"></script>
+        <script>
+
+            document.getElementById('next-iteration').addEventListener('click', function(e) {
+                e.preventDefault();
+                golBoard.calculateNextGeneration();
+                golBoard.updateDOMBoard();
+            });
+
+            document.getElementById('random-seed').addEventListener('click', function(e) {
+                e.preventDefault();
+                golBoard.randomSeed();
+                golBoard.updateDOMBoard();
+            });
+            document.getElementById('start').addEventListener('click', function(e) {
+                e.preventDefault();
+                golBoard.start();
+            });
+            document.getElementById('stop').addEventListener('click', function(e) {
+                e.preventDefault();
+                setTimeout
+                golBoard.stop();
+            });
+            document.getElementById('clear').addEventListener('click', function(e) {
+                e.preventDefault();
+                golBoard.stop();
+                golBoard.clearBoard();
+                golBoard.updateDOMBoard();
+            });
+            
+
+        </script>
     </body>
 </html>

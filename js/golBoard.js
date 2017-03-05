@@ -36,6 +36,18 @@ function GolBoard(w, h, wrap) {
 		}
 		document.getElementById('body').appendChild(this.DOMBoard);
 	}
+	this.randomSeed = function() {
+		for (i = 0;i < this.width; i++) {
+			for (j = 0;j < this.height; j++) {
+				if (Math.random() < 0.5) {
+					this.board[i][j] = false;
+				} else {
+					this.board[i][j] = true;
+				}
+				
+			}
+		}
+	}
 
 	// updates DOMBoard, DOM representation of board, from board
 	this.updateDOMBoard = function() {
@@ -107,7 +119,7 @@ function GolBoard(w, h, wrap) {
 		for (var i = x - 1;i < x + 2; i++) {
 			for (var j = y - 1;j < y + 2; j++) {
 				if (i == x && j == y ) {
-					console.log("skipped");
+					//console.log("skipped");
 				} else {
 					var xPosition = i;
 					var yPosition = j;
@@ -130,28 +142,37 @@ function GolBoard(w, h, wrap) {
 						}
 					}
 					debug += xPosition + " " + yPosition + " | "
-					console.log
-					if (this.board[xPosition][yPosition] ) {
+					if (this.board[xPosition][yPosition] == true) {
+						//console.log(xPosition + '.' + yPosition + ' is true');
 						count++;
 					}
 				}
 			}
 		}
-		console.log(debug);
-		console.log(count);
+		/*
+		if (this.board[x][y] || count == 3) {
+			console.log(debug);
+			console.log(count);
+		}*/
 		return count;
 	}
-	this.test = function() {
-		golBoard.calculateNextGeneration();
-		golBoard.updateDOMBoard();
+	this.start = function() {
+		this.startInterval = setInterval(function() {
+			golBoard.calculateNextGeneration();
+            golBoard.updateDOMBoard();
+		}, 100);
 	}
-
+	this.stop = function() {
+		clearInterval(this.startInterval);
+	}
+	this.clearBoard = function() {
+		for (i = 0;i < this.width; i++) {
+			for (j = 0;j < this.height; j++) {
+				this.board[i][j] = false;
+			}
+		}
+	}
 }
 
-// calculate next generation
-// update DOMBoard
-// wait 100ms
-// restart
-
-var golBoard = new GolBoard(10, 10, true);
+var golBoard = new GolBoard(50, 50, true);
 golBoard.init();
