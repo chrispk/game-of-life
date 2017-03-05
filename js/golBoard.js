@@ -8,14 +8,17 @@ function GolBoard(w, h, wrap) {
 	// calls this.makeBoard to construct DOMBoard 
 	this.init = function() {
 		this.board = [];
+		this.virtualBoard = [];
 		for (i = 0;i < this.width; i++) {
 			this.board[i] = [];
+			this.virtualBoard[i] = [];
 			for (j = 0;j < this.height; j++) {
 				this.board[i][j] = false;
+				this.virtualBoard[i][j] = false;
 			}
 		}
 		
-		this.virtualBoard = this.board;
+		//this.virtualBoard = this.board.slice(0);
 
 		this.DOMBoard = document.createElement('div');
 		this.DOMBoard.setAttribute('id', 'golBoard');
@@ -87,7 +90,9 @@ function GolBoard(w, h, wrap) {
 	// updates board from virtualBoard which holds next generation settings
 	this.calculateNextGeneration = function() {
 		this.updateBoard();
-		this.virtualBoard = this.board;
+		for (i = 0;i < this.width; i++) {
+			this.virtualBoard[i] = this.board[i].slice(0);
+		}
 		for (var i = 0;i < this.width; i++) {
 			for (var j = 0;j < this.height; j++) {
 				var population = this.countPopulatedCells(i, j);
@@ -107,7 +112,9 @@ function GolBoard(w, h, wrap) {
 				}
 			}
 		}
-		this.board = this.virtualBoard;
+		for (i = 0;i < this.width; i++) {
+			this.board[i] = this.virtualBoard[i].slice(0);
+		}
 	}
 	// count the surrounding active cells of a specified cell with optional wrapping enabled
 	// return number of cells
@@ -142,7 +149,7 @@ function GolBoard(w, h, wrap) {
 						}
 					}
 					debug += xPosition + " " + yPosition + " | "
-					if (this.board[xPosition][yPosition] == true) {
+					if (this.board[xPosition][yPosition]) {
 						//console.log(xPosition + '.' + yPosition + ' is true');
 						count++;
 					}
